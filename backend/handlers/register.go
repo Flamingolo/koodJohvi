@@ -3,8 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"main/models"
-	"main/utils"
 	"net/http"
 )
 

@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"log"
-	"main/handlers"
 	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
