@@ -24,3 +24,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func LikeComment(w http.ResponseWriter, r *http.Request){
+	
+}
