@@ -3,12 +3,15 @@ package main
 import (
 	"log"
 	"net/http"
+	"rtf/backend/database"
 	"rtf/backend/handlers"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
+	// Initialize db
+	database.InitializeDatabase()
 	// Router
 	r := mux.NewRouter()
 

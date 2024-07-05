@@ -16,7 +16,7 @@ type Comment struct {
 }
 
 func CreateComment(comment *Comment) error {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func CreateComment(comment *Comment) error {
 }
 
 func UpdateCommentLikes(commentID int, likes int, dislikes int) error {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func UpdateCommentLikes(commentID int, likes int, dislikes int) error {
 }
 
 func GetCommentByID(commentID int) (*Comment, error) {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return nil, err
 	}

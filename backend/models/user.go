@@ -19,7 +19,7 @@ type User struct {
 }
 
 func CreateUser(user *User) error {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func CreateUser(user *User) error {
 }
 
 func GetUserByEmail(email string) (*User, error) {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return nil, err
 	}

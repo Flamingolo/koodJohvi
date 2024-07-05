@@ -3,7 +3,7 @@ package models
 import "database/sql"
 
 func CreateSessions(token string, userID int) error {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return err
 	}
@@ -19,7 +19,7 @@ func CreateSessions(token string, userID int) error {
 }
 
 func GetUserIDBySession(token string) (int, error) {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return 0, err
 	}

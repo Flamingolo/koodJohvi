@@ -17,7 +17,7 @@ type Post struct {
 }
 
 func CreatePost(post *Post) error {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func CreatePost(post *Post) error {
 }
 
 func UpdatePostLikes(postID int, likes int, dislikes int) error {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func UpdatePostLikes(postID int, likes int, dislikes int) error {
 }
 
 func GetPostByID(postID int) (*Post, error) {
-	db, err := sql.Open("sqlite3", "./forum.db")
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return nil, err
 	}
@@ -65,8 +65,8 @@ func GetPostByID(postID int) (*Post, error) {
 	return &post, nil
 }
 
-func GetAllPosts () ([]Post, error) {
-	db, err := sql.Open("sqlite3", "./forum.db")
+func GetAllPosts() ([]Post, error) {
+	db, err := sql.Open("sqlite3", "./database/forum.db")
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func GetAllPosts () ([]Post, error) {
 	defer rows.Close()
 
 	var posts []Post
-	for rows.Next(){
+	for rows.Next() {
 		var post Post
 		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.Likes, &post.Dislikes, &post.Score, &post.CreatedAt)
 		if err != nil {
