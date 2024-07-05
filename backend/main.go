@@ -13,14 +13,14 @@ func main() {
 	r := mux.NewRouter()
 
 	// Handlers
-	r.HandleFunc("/api/register", handlers.Register).Methods("POST")
-	r.HandleFunc("/api/login", handlers.Login).Methods("POST")
-	r.HandleFunc("/api/posts", handlers.CreatePost).Methods("POST")
-	r.HandleFunc("/api/posts/{id}/like", handlers.LikePost).Methods("POST")
-	r.HandleFunc("/api/posts/{id}/dislike", handlers.DislikePost).Methods("POST")
-	r.HandleFunc("/api/comments", handlers.CreateComment).Methods("POST")
-	r.HandleFunc("/api/comments/{id}/like", handlers.LikeComment).Methods("POST")
-	r.HandleFunc("/api/comments/{id}/dislike", handlers.DislikeComment).Methods("POST")
+	r.HandleFunc("/register", handlers.Register).Methods("POST")
+	r.HandleFunc("/login", handlers.Login).Methods("POST")
+	r.HandleFunc("/posts", handlers.CreatePost).Methods("POST")
+	r.HandleFunc("/posts/{id}/like", handlers.LikePost).Methods("POST")
+	r.HandleFunc("/posts/{id}/dislike", handlers.DislikePost).Methods("POST")
+	r.HandleFunc("/comments", handlers.CreateComment).Methods("POST")
+	r.HandleFunc("/comments/{id}/like", handlers.LikeComment).Methods("POST")
+	r.HandleFunc("/comments/{id}/dislike", handlers.DislikeComment).Methods("POST")
 	r.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	// Serve static files

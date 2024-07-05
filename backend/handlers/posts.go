@@ -65,3 +65,13 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func GetPosts(w http.ResponseWriter, r *http.Request) {
+	posts, err := models.GetAllPosts()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(posts)
+}
