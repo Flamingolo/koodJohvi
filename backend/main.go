@@ -15,15 +15,30 @@ func main() {
 	// Router
 	r := mux.NewRouter()
 
-	// Handlers
+	// Authenticate middleware
+	authMiddleware := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_, err := handlers.GetLoggedInUsedID(r)
+			if err != nil {
+				http.Error(w, "User not logged in", http.StatusUnauthorized)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+
+	// Public Routes
 	r.HandleFunc("/register", handlers.Register).Methods("POST")
 	r.HandleFunc("/login", handlers.Login).Methods("POST")
-	r.HandleFunc("/posts", handlers.CreatePost).Methods("POST")
-	r.HandleFunc("/posts/{id}/like", handlers.LikePost).Methods("POST")
-	r.HandleFunc("/posts/{id}/dislike", handlers.DislikePost).Methods("POST")
-	r.HandleFunc("/comments", handlers.CreateComment).Methods("POST")
-	r.HandleFunc("/comments/{id}/like", handlers.LikeComment).Methods("POST")
-	r.HandleFunc("/comments/{id}/dislike", handlers.DislikeComment).Methods("POST")
+	r.HandleFunc("/categories", handlers.GetCategories).Methods("GET")
+
+	// Protected Routes
+	r.Handle("/posts", authMiddleware(http.HandlerFunc(handlers.CreatePost))).Methods("POST")
+	r.Handle("/posts/{id}/like", authMiddleware(http.HandlerFunc(handlers.LikePost))).Methods("POST")
+	r.Handle("/posts/{id}/dislike", authMiddleware(http.HandlerFunc(handlers.DislikePost))).Methods("POST")
+	r.Handle("/comments", authMiddleware(http.HandlerFunc(handlers.CreateComment))).Methods("POST")
+	r.Handle("/comments/{id}/like", authMiddleware(http.HandlerFunc(handlers.LikeComment))).Methods("POST")
+	r.Handle("/comments/{id}/dislike", authMiddleware(http.HandlerFunc(handlers.DislikeComment))).Methods("POST")
 	r.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	// Serve static files
