@@ -29,11 +29,42 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "", href: "/"},
     ]
 
-    navLinks.forEach(link => {
-        const navItem = document.createElement("a");
-        navItem.href = link.href;
-        navItem.textContent = link.name;
-        navItem.classList.add("nav-link");
-        navbar.appendChild(navItem)
-    })
-})
+
+    async function createNavItems(){
+        for (const link of navLinks){
+            if ((link.requiresAuth && !isLoggedIn()) || (link.requiresAuth === false && isLoggedIn())){
+                continue
+            }
+
+            if (link.dropdown) {
+                const dropDown = document.createElement("div");
+                dropDown.classList.add("dropdown");
+
+                const dropDownButton = document.createElement("button");
+                dropDownButton.classList.add("dropbtn");
+                dropDownButton.textContent = link.name;
+                dropDown.appendChild(dropDownButton);
+
+                const dropDownContent = document.createElement("div");
+                dropDownContent.classList.add("dropdown-content");
+
+                const categories = await getCategories();
+                categories.forEach(category => {
+                    const categoryLink = document.createElement("a");
+                    categoryLink.href = `/category/${category}`;
+                    categoryLink.textContent = item;
+                    dropDownContent.appendChild(categoryLink);
+                });
+                dropDown.appendChild(dropDownContent);
+                navbar.appendChild(dropDown);
+            } else {
+                const navItem = document.createElement("a");
+                navItem.href = link.href;
+                navItem.textContent = link.name;
+                navItem.classList.add("nav-link");
+                navbar.appendChild(navItem);
+            }
+        }
+    }
+    createNavItems();
+});
