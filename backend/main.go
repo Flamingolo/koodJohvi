@@ -45,17 +45,26 @@ func main() {
 	r.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	// Serve static files
-	staticFileDirectory := http.Dir("./frontend/")
-	staticFileHandler := http.StripPrefix("/", http.FileServer(staticFileDirectory))
-	r.PathPrefix("/").Handler(staticFileHandler).Methods("GET")
+	fs := http.FileServer(http.Dir("./frontend/"))
+	r.PathPrefix("/").Handler(fs)
 
-	// Logging to check
-	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Serving: ", r.URL.Path)
-		staticFileHandler.ServeHTTP(w, r)
-	})
+	// Only index.html
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Serving index file")
+		http.ServeFile(w, r, "./frontend/index.html")
+	}).Methods("GET")
+
+	// Logging for requests
+	r.Use(logginMiddleWare)
 
 	// Server
 	log.Println("Server started at localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
+}
+
+func logginMiddleWare(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Received requests: %s %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
 }
