@@ -1,4 +1,4 @@
-import { isLoggedIn, setLoggedIn } from "../Main.js";
+import { isLoggedIn, setLoggedIn } from "../main.js";
 
 export function NavBar(isLoggedIn, setLoggedIn){
     const nav = document.createElement("nav");

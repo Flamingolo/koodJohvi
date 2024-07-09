@@ -1,4 +1,4 @@
-import { setLoggedIn } from "../Main.js";
+import { setLoggedIn } from "../main.js";
 
 export function Login(setLoggedIn){
     const loginSection = document.createElement("section");

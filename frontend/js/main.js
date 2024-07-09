@@ -1,4 +1,10 @@
-
+import Header from "./components/Header.js";
+import NavBar from "./components/NavBar.js";
+import Posts from "./components/Posts.js";
+import Chat from "./components/Chat.js";
+import Login from "./components/Login.js";
+import Register from "./components/Register.js";
+import Footer from "./components/Footer.js";
 
 function isLoggedIn(){
     return localStorage.getItem("isLoggedOn") === "true"
@@ -20,10 +26,10 @@ function init() {
     root.appendChild(Header());
     root.appendChild(NavBar(isLoggedIn(), setLoggedIn));
 
-    const hast = window.location.hash.substring(1);
+    const hash = window.location.hash.substring(1);
     if (hash === 'login'){
         root.appendChild(Login(setLoggedIn));
-    } else if (hast === 'register'){
+    } else if (hash === 'register'){
         root.appendChild(Register());
     } else {
         root.appendChild(Posts());

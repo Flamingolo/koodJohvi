@@ -34,15 +34,26 @@ func main() {
 
 	// Protected Routes
 	r.Handle("/posts", authMiddleware(http.HandlerFunc(handlers.CreatePost))).Methods("POST")
+	r.HandleFunc("/posts", handlers.GetPosts).Methods("GET")
 	r.Handle("/posts/{id}/like", authMiddleware(http.HandlerFunc(handlers.LikePost))).Methods("POST")
 	r.Handle("/posts/{id}/dislike", authMiddleware(http.HandlerFunc(handlers.DislikePost))).Methods("POST")
+	r.Handle("/posts/{id}/comments", authMiddleware(http.HandlerFunc(handlers.GetComments))).Methods("POST")
+	r.HandleFunc("/posts/{postId}/comments", handlers.GetComments).Methods("GET")
 	r.Handle("/comments", authMiddleware(http.HandlerFunc(handlers.CreateComment))).Methods("POST")
 	r.Handle("/comments/{id}/like", authMiddleware(http.HandlerFunc(handlers.LikeComment))).Methods("POST")
 	r.Handle("/comments/{id}/dislike", authMiddleware(http.HandlerFunc(handlers.DislikeComment))).Methods("POST")
 	r.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	// Serve static files
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./frontend/")))
+	staticFileDirectory := http.Dir("./frontend/")
+	staticFileHandler := http.StripPrefix("/", http.FileServer(staticFileDirectory))
+	r.PathPrefix("/").Handler(staticFileHandler).Methods("GET")
+
+	// Logging to check
+	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Serving: ", r.URL.Path)
+		staticFileHandler.ServeHTTP(w, r)
+	})
 
 	// Server
 	log.Println("Server started at localhost:8080")
