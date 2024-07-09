@@ -1,4 +1,4 @@
-export function Header(){
+export default function Header(){
     const header = document.createElement("header");
     header.innerHTML = `
         <h1>Real Time Forum</h1>

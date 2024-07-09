@@ -1,6 +1,6 @@
-import { setLoggedIn } from "../main.js";
+import { setLoggedIn } from "../main";
 
-export function Login(setLoggedIn){
+export default function Login(setLoggedIn){
     const loginSection = document.createElement("section");
     loginSection.innerHTML = `
         <h2>Login</h2>
@@ -23,7 +23,7 @@ export function Login(setLoggedIn){
         const email = e.target.email.value;
         const password = e.target.password.value;
 
-        const response = await fetch('http://localhost:3000/login', {
+        const response = await fetch('http://localhost:8080/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -38,6 +38,6 @@ export function Login(setLoggedIn){
         }
     });
 
-    return loginSection;
-    
+    return loginSection;   
+
 }

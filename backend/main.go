@@ -45,14 +45,7 @@ func main() {
 	r.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	// Serve static files
-	fs := http.FileServer(http.Dir("./frontend/"))
-	r.PathPrefix("/").Handler(fs)
-
-	// Only index.html
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Serving index file")
-		http.ServeFile(w, r, "./frontend/index.html")
-	}).Methods("GET")
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("../frontend/")))
 
 	// Logging for requests
 	r.Use(logginMiddleWare)
