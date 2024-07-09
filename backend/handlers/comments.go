@@ -28,18 +28,26 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func LikeComment(w http.ResponseWriter, r *http.Request) {
+func GetComments(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	commentID, _ := strconv.Atoi(vars["id"])
+	postID, _ := strconv.Atoi(vars["postID"])
 
-	comment, err := models.GetCommentByID(commentID)
+	comments, err := models.GetCommentByID(postID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	comment.Likes++
-	if err := models.UpdateCommentLikes(commentID, comment.Likes, comment.Dislikes); err != nil {
+	json.NewEncoder(w).Encode(comments)
+
+}
+
+func LikeComment(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	commentID, _ := strconv.Atoi(vars["id"])
+
+	err := models.UpdateCommentLikes(commentID, 1, 0)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -51,14 +59,8 @@ func DislikeComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	commentID, _ := strconv.Atoi(vars["id"])
 
-	comment, err := models.GetCommentByID(commentID)
+	err := models.UpdateCommentLikes(commentID, 0, 1)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
-	comment.Dislikes++
-	if err := models.UpdateCommentLikes(commentID, comment.Likes, comment.Dislikes); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

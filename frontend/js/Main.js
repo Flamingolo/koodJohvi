@@ -1,10 +1,14 @@
 
-let isLoggedOn = false;
 
-function setLoggedIn(){
-    isLoggedOn = status;
+function isLoggedIn(){
+    return localStorage.getItem("isLoggedOn") === "true"
+}
+
+function setLoggedIn(status){
+    localStorage.setItem("isLoggedOn", status ? 'true' : 'false');
     init();
 }
+
 
 function init() {
     const root = document.getElementById("root");
@@ -14,15 +18,24 @@ function init() {
 
     // Append Header
     root.appendChild(Header());
-    root.appendChild(NavBar(isLoggedOn, setLoggedIn));
-    root.appendChild(Posts());
-    root.appendChild(Chat());
+    root.appendChild(NavBar(isLoggedIn(), setLoggedIn));
+
+    const hast = window.location.hash.substring(1);
+    if (hash === 'login'){
+        root.appendChild(Login(setLoggedIn));
+    } else if (hast === 'register'){
+        root.appendChild(Register());
+    } else {
+        root.appendChild(Posts());
+        root.appendChild(Chat());
+    }
+
+    // Append Footer
     root.appendChild(Footer());
 }
 
+// Initial loop
 init();
 
-
-window.addEventListener("hashchange", function () {
-    init();
-});
+// Handle navigation and component loading
+window.addEventListener("hashchange", init);

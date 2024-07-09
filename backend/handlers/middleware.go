@@ -9,12 +9,12 @@ import (
 func GetLoggedInUsedID(r *http.Request) (int, error) {
 	cookie, err := r.Cookie("RealTimeForum_session_token")
 	if err != nil {
-		return 0, errors.New("User not logged in")
+		return 0, errors.New("user not logged in")
 	}
 
 	userID, err := models.GetUserIDBySession(cookie.Value)
 	if err != nil {
-		return 0, errors.New("Invalid session token")
+		return 0, errors.New("invalid session token")
 	}
 
 	return userID, nil

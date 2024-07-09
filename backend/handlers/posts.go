@@ -10,36 +10,21 @@ import (
 )
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
-	var post models.Post
-	json.NewDecoder(r.Body).Decode(&post)
-
-	userID, err := GetLoggedInUsedID(r)
+	posts, err := models.GetAllPosts()
 	if err != nil {
-		http.Error(w, "User not logged in", http.StatusUnauthorized)
-		return
-	}
-	post.UserID = userID
-
-	if err := models.CreatePost(&post); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(posts)
 }
 
 func LikePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	postID, _ := strconv.Atoi(vars["id"])
 
-	post, err := models.GetPostByID(postID)
+	err := models.UpdatePostLikes(postID, 1, 0)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
-	post.Likes++
-	if err := models.UpdatePostLikes(postID, post.Likes, post.Dislikes); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -51,14 +36,8 @@ func DislikePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	postID, _ := strconv.Atoi(vars["id"])
 
-	post, err := models.GetPostByID(postID)
+	err := models.UpdatePostLikes(postID, 0, 1)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
-	post.Dislikes++
-	if err := models.UpdatePostLikes(postID, post.Likes, post.Dislikes); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
