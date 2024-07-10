@@ -3,14 +3,14 @@ package database
 import (
 	"database/sql"
 	"log"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func InitializeDatabase() {
-	db, err := sql.Open("sqlite3", "./backend/database/forum.db")
+func InitDB() *sql.DB {
+	db, err := sql.Open("sqlite3", "./backend/database/rtfdb.db")
 	if err != nil {
-		log.Fatalf("Failed to open database %v", err)
+		log.Fatal(err)
 	}
-	defer db.Close()
-
-	log.Println("Database initialized successfully")
+	return db
 }
