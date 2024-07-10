@@ -22,14 +22,12 @@ func NewRoutes(db *sql.DB, store *sessions.CookieStore) *Routes {
 func (rt *Routes) InitializeRoutes() {
 	h := rt.Handlers
 
-	// Public routes
+	// Middleware
+	http.HandleFunc("/", h.WithSession(h.ServeSPA))
+
+	// API Routes
 	http.HandleFunc("/login", h.LoginHandler())
 	http.HandleFunc("/logout", h.LogOutHandler())
-
-	// Protected routes
-	http.Handle("/createPost", h.IsAuthenticated(http.HandlerFunc(h.CreatePostHandler)))
-	http.Handle("/createComment", h.IsAuthenticated(http.HandlerFunc(h.CreateCommentHandler)))
-
-	// Apply session middleware to all routes
-	http.Handle("/", h.WithSession(http.HandlerFunc(h.HomeLander)))
+	http.Handle("/createPost", h.IsAuthenticated(h.CreatePostHandler))
+	http.Handle("/createComment", h.IsAuthenticated(h.CreateCommentHandler))
 }
