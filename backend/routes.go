@@ -26,8 +26,11 @@ func (rt *Routes) InitializeRoutes() {
 	http.HandleFunc("/", h.WithSession(h.ServeSPA))
 
 	// API Routes
-	http.HandleFunc("/login", h.LoginHandler())
-	http.HandleFunc("/logout", h.LogOutHandler())
-	http.Handle("/createPost", h.IsAuthenticated(h.CreatePostHandler))
-	http.Handle("/createComment", h.IsAuthenticated(h.CreateCommentHandler))
+	http.HandleFunc("api/login", h.LoginHandler())
+	http.HandleFunc("api/logout", h.LogOutHandler())
+	http.Handle("api/createPost", h.IsAuthenticated(h.CreatePostHandler))
+	http.Handle("api/createComment", h.IsAuthenticated(h.CreateCommentHandler))
+
+	// Serve SPA
+	http.HandleFunc("/", h.ServeSPA)
 }
