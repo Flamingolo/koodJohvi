@@ -27,29 +27,32 @@ func main() {
 	fs := http.FileServer(http.Dir("../frontend"))
 	router.PathPrefix("/").Handler(fs)
 
+	// Api router
+	apiRouter := router.PathPrefix("/api").Subrouter()
+
 	// User endpoints
-	router.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
-	router.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
+	apiRouter.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
+	apiRouter.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
 
 	// Post endpoints
-	router.HandleFunc("/posts", handlers.CreatePostHandler).Methods("POST")
-	router.HandleFunc("/posts/{id}", handlers.GetPostHandler).Methods("GET")
-	router.HandleFunc("/posts", handlers.GetAllPostHandler).Methods("GET")
+	apiRouter.HandleFunc("/posts", handlers.CreatePostHandler).Methods("POST")
+	apiRouter.HandleFunc("/posts/{id}", handlers.GetPostHandler).Methods("GET")
+	apiRouter.HandleFunc("/posts", handlers.GetAllPostHandler).Methods("GET")
 
 	// Comment endpoints
-	router.HandleFunc("/comments", handlers.CreateCommentHandler).Methods("POST")
-	router.HandleFunc("/comments{id}", handlers.GetCommentHandler).Methods("GET")
-	router.HandleFunc("/comments/post/{postId}", handlers.GetCommentsByPostHandler).Methods("GET")
+	apiRouter.HandleFunc("/comments", handlers.CreateCommentHandler).Methods("POST")
+	apiRouter.HandleFunc("/comments{id}", handlers.GetCommentHandler).Methods("GET")
+	apiRouter.HandleFunc("/comments/post/{postId}", handlers.GetCommentsByPostHandler).Methods("GET")
 
 	// Message endpoints
-	router.HandleFunc("/messages", handlers.CreateMessageHandler).Methods("POST")
-	router.HandleFunc("/messages/{id}", handlers.GetMessageHandler).Methods("GET")
-	router.HandleFunc("/messages/user/{userId}", handlers.GetMessagesByUserHandler).Methods("GET")
+	apiRouter.HandleFunc("/messages", handlers.CreateMessageHandler).Methods("POST")
+	apiRouter.HandleFunc("/messages/{id}", handlers.GetMessageHandler).Methods("GET")
+	apiRouter.HandleFunc("/messages/user/{userId}", handlers.GetMessagesByUserHandler).Methods("GET")
 
 	// Category endpoints
-	router.HandleFunc("/categories", handlers.CreateCategoryHandler).Methods("POST")
-	router.HandleFunc("/categories/{id}", handlers.GetCategoryHandler).Methods("GET")
-	router.HandleFunc("/categories", handlers.GetAllCategoriesHandler).Methods("GET")
+	apiRouter.HandleFunc("/categories", handlers.CreateCategoryHandler).Methods("POST")
+	apiRouter.HandleFunc("/categories/{id}", handlers.GetCategoryHandler).Methods("GET")
+	apiRouter.HandleFunc("/categories", handlers.GetAllCategoriesHandler).Methods("GET")
 
 	log.Println("Starting server at localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
