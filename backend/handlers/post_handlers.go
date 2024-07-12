@@ -24,6 +24,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(post)
 }
 
 func GetPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,8 +46,8 @@ func GetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetAllPostHandler(w http.ResponseWriter, r *http.Request){
-	posts, err := models.GetPosts(db)
+func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
+	posts, err := models.GetAllPosts(db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -54,4 +55,31 @@ func GetAllPostHandler(w http.ResponseWriter, r *http.Request){
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)
+}
+
+func UpdatePostScoreHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "Invalid Post Id", http.StatusBadRequest)
+		return
+	}
+
+	var scoreUpdate struct {
+		Score int `json:"score"`
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&scoreUpdate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = models.UpdatePostScore(db, id, scoreUpdate.Score)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

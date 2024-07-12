@@ -6,20 +6,20 @@ import (
 )
 
 type Comment struct {
-	ID        int       `json:"id"`
-	PostID    int       `json:"post_id"`
-	UserID    int       `json:"user_id"`
-	Context   string    `json:"context"`
-	Likes     int       `json:"likes"`
-	Dislikes  int       `json:"dislikes"`
-	Score     int       `json:"score"`
+	ID      int    `json:"id"`
+	PostID  int    `json:"post_id"`
+	UserID  int    `json:"user_id"`
+	Content string `json:"content"`
+	// Likes     int       `json:"likes"`
+	// Dislikes  int       `json:"dislikes"`
 	CreatedAt time.Time `json:"created_at"`
+	Score     int       `json:"score"`
 }
 
 // CreateComment creates a new comment in the database.
 func CreateComment(db *sql.DB, comment *Comment) error {
-	query := `INSERT INTO comments (post_id, user_id, context, likes, dislikes, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	result, err := db.Exec(query, comment.PostID, comment.UserID, comment.Context, comment.Likes, comment.Dislikes, comment.Score, time.Now())
+	query := `INSERT INTO comments (post_id, user_id, context, score, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`
+	result, err := db.Exec(query, comment.PostID, comment.UserID, comment.Content, comment.Score)
 	if err != nil {
 		return err
 	}
@@ -35,11 +35,11 @@ func CreateComment(db *sql.DB, comment *Comment) error {
 
 // GetCommentByID retrieves a comment by its ID.
 func GetCommentByID(db *sql.DB, id int) (*Comment, error) {
-	query := `SELECT id, post_id, user_id, context, likes, dislikes, score, created_at FROM comments WHERE id = ?`
+	query := `SELECT id, post_id, user_id, content, created_at, score FROM comments WHERE id = ?`
 	row := db.QueryRow(query, id)
 
 	var comment Comment
-	err := row.Scan(&comment.ID, &comment.PostID, &comment.UserID, &comment.Context, &comment.Likes, &comment.Dislikes, &comment.Score, &comment.CreatedAt)
+	err := row.Scan(&comment.ID, &comment.PostID, &comment.UserID, &comment.Content, &comment.CreatedAt, &comment.Score)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func GetCommentByID(db *sql.DB, id int) (*Comment, error) {
 
 // GetCommentsByPostID retrieves all comments for a given post ID.
 func GetCommentsByPostID(db *sql.DB, postID int) ([]Comment, error) {
-	query := `SELECT id, post_id, user_id, context, likes, dislikes, score, created_at FROM comments WHERE post_id = ?`
+	query := `SELECT id, post_id, user_id, content, created_at, score FROM comments WHERE post_id = ?`
 	rows, err := db.Query(query, postID)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func GetCommentsByPostID(db *sql.DB, postID int) ([]Comment, error) {
 	var comments []Comment
 	for rows.Next() {
 		var comment Comment
-		err := rows.Scan(&comment.ID, &comment.PostID, &comment.UserID, &comment.Context, &comment.Likes, &comment.Dislikes, &comment.Score, &comment.CreatedAt)
+		err := rows.Scan(&comment.ID, &comment.PostID, &comment.UserID, &comment.Content, &comment.CreatedAt, &comment.Score)
 		if err != nil {
 			return nil, err
 		}
@@ -68,9 +68,9 @@ func GetCommentsByPostID(db *sql.DB, postID int) ([]Comment, error) {
 }
 
 // UpdateComment updates an existing comment in the database.
-func UpdateComment(db *sql.DB, comment *Comment) error {
-	query := `UPDATE comments SET context = ?, likes = ?, dislikes = ? WHERE id = ?`
-	_, err := db.Exec(query, comment.Context, comment.Likes, comment.Dislikes, comment.ID)
+func UpdateCommentScore(db *sql.DB, commentID int, score int) error {
+	query := `UPDATE comments SET score = ? WHERE id = ?`
+	_, err := db.Exec(query, score, commentID)
 	return err
 }
 
