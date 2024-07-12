@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"rtf/backend/models"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("RegisterHandler called")
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
