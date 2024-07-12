@@ -8,7 +8,7 @@ import (
 )
 
 func InitDB() *sql.DB {
-	db, err := sql.Open("sqlite3", "./backend/database/rtfdb.db")
+	db, err := sql.Open("sqlite3", "backend/database/database.sql")
 	if err != nil {
 		log.Fatal(err)
 	}
