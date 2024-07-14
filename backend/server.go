@@ -36,7 +36,7 @@ func main() {
 	}, "GET")
 
 	// Post endpoints
-	r.NewRoute("/posts", handlers.CreatePostHandler, "POST")
+	r.NewRoute("/posts", handlers.CreatePostHandler, "POST", "GET")
 	r.NewRoute("/posts/{id}", handlers.GetPostHandler, "GET")
 	r.NewRoute("/posts", handlers.GetAllPostHandler, "GET")
 	r.NewRoute("/posts/{id}/score", handlers.UpdatePostScoreHandler, "PUT")
