@@ -29,9 +29,6 @@ func InitDB() *sql.DB {
 		log.Fatal("DATABASE_FILE_PATH is not set")
 	}
 
-	log.Printf("Using DATABASE_SQL_PATH: %s\n", sqlFilePath)
-	log.Printf("Using DATABASE_FILE_PATH: %s\n", dbFilePath)
-
 	// Opening db
 	db, err := sql.Open("sqlite3", dbFilePath)
 	if err != nil {
@@ -71,8 +68,6 @@ func InitDB() *sql.DB {
 			_, err := db.Exec(command)
 			if err != nil {
 				log.Fatalf("Error executing command: %s\nError: %v", command, err)
-			} else {
-				log.Printf("Successfully executed command: %s\n", command)
 			}
 		}
 	}
