@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"rtf/backend/models"
 	"strconv"
@@ -35,8 +36,11 @@ func GetPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Fetching post with ID: %d", id)
+
 	post, err := models.GetPostByID(db, id)
 	if err != nil {
+		log.Printf("POST with id %d not found %v", id, err)
 		http.Error(w, "Post Not Found", http.StatusNotFound)
 		return
 	}
