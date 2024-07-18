@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"rtf/backend/database"
 	"rtf/backend/handlers"
-	"rtf/backend/router" // Import your custom router package
+	"rtf/backend/router"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -18,8 +18,6 @@ func main() {
 	// Set the database for the handlers
 	handlers.SetDB(db)
 
-	handlers.SetDB(db)
-
 	r := &router.Router{}
 	r.SetAPIPrefix("api")
 
@@ -29,16 +27,10 @@ func main() {
 	r.NewRoute("/users/{id}", handlers.GetUserHandler, "GET")
 	r.NewRoute("/logout", handlers.LogoutHandler, "POST")
 
-	// Test endpoint
-	r.NewRoute("/test", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Test endpoint called")
-		w.Write([]byte("Test successful"))
-	}, "GET")
-
 	// Post endpoints
-	r.NewRoute("/posts", handlers.CreatePostHandler, "POST", "GET")
+	r.NewRoute("/posts", handlers.CreatePostHandler, "POST")
 	r.NewRoute("/posts/{id}", handlers.GetPostHandler, "GET")
-	r.NewRoute("/posts", handlers.GetAllPostHandler, "GET")
+	r.NewRoute("/posts/all", handlers.GetAllPostHandler, "GET")
 	r.NewRoute("/posts/{id}/score", handlers.UpdatePostScoreHandler, "PUT")
 
 	// Comment endpoints
@@ -56,9 +48,13 @@ func main() {
 	// Category endpoints
 	r.NewRoute("/categories", handlers.CreateCategoryHandler, "POST")
 	r.NewRoute("/categories/{id}", handlers.GetCategoryHandler, "GET")
-	r.NewRoute("/categories", handlers.GetAllCategoriesHandler, "GET")
+	r.NewRoute("/categories/all", handlers.GetAllCategoriesHandler, "GET")
 	r.NewRoute("/categories/{id}", handlers.DeleteCategoryHandler, "DELETE")
 	r.NewRoute("/categories/{id}", handlers.UpdateCategoryHandler, "PUT")
+
+	// Static files
+	fs := http.FileServer(http.Dir("../frontend"))
+	http.Handle("/", fs)
 
 	log.Println("Starting server at localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))

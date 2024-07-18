@@ -57,7 +57,7 @@ func GetPostByID(db *sql.DB, id int) (*Post, error) {
 	err := row.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.CreatedAt, &post.AmountOfComments, &post.Score)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Printf("No posts found with id %d", id)
+			log.Printf("No post found with ID %d", id)
 			return nil, err
 		}
 		return nil, err
@@ -91,9 +91,8 @@ func getPostCategories(db *sql.DB, postID int) ([]string, error) {
 		categories = append(categories, category)
 	}
 
-	// debugging
 	if err = rows.Err(); err != nil {
-		log.Printf("Error with rows for post id %d: %v", postID, err)
+		log.Printf("Error with rows for post ID %d: %v", postID, err)
 		return nil, err
 	}
 

@@ -18,6 +18,8 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Creating post: %+v", post)
+
 	err = models.CreatePost(db, &post)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -25,7 +27,11 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(post)
+	err = json.NewEncoder(w).Encode(post); if err != nil {
+		log.Printf("Error encoding response: %v", err)
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func GetPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,8 +52,13 @@ func GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(post)
-
+	err = json.NewEncoder(w).Encode(post)
+	if err != nil {
+		log.Printf("Error encoding response: %v", err)
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
+	log.Printf("Successfully fetched post with ID: %d", id)
 }
 
 func GetAllPostHandler(w http.ResponseWriter, r *http.Request) {
