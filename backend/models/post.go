@@ -2,62 +2,68 @@ package models
 
 import (
 	"database/sql"
+	"log"
 	"time"
 )
 
 type Post struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Likes     int       `json:"likes"`
-	Dislikes  int       `json:"dislikes"`
-	Score     int       `json:"score"`
-	CreatedAt time.Time `json:"created_at"`
+	ID               int       `json:"id"`
+	UserID           int       `json:"user_id"`
+	Title            string    `json:"title"`
+	Content          string    `json:"content"`
+	CreatedAt        time.Time `json:"created_at"`
+	AmountOfComments int       `json:"amount_of_comments"`
+	Score            int       `json:"score"`
+	Categories       []string  `json:"categories"`
 }
 
-func CreatePost(post *Post) error {
-	db, err := sql.Open("sqlite3", "./database/forum.db")
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	stmt, err := db.Prepare("INSERT INTO posts (user_id, title, content, created_at) VALUE (?, ?, ?, ?)")
+func CreatePost(db *sql.DB, post *Post) error {
+	query := `INSERT INTO posts (user_id, title, content, created_at, amount_of_comments, score) VALUES (?, ?, ?, ?, ?, ?)`
+	result, err := db.Exec(query, post.UserID, post.Title, post.Content, time.Now(), post.AmountOfComments, post.Score)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(post.UserID, post.Title, post.Content, time.Now())
-	return err
-}
-
-func UpdatePostLikes(postID int, likes int, dislikes int) error {
-	db, err := sql.Open("sqlite3", "./database/forum.db")
-	if err != nil {
-		return nil
-	}
-	defer db.Close()
-
-	stmt, err := db.Prepare("UPDATE posts SET likes = ?, dislikes = ? WHERE id = ?")
+	id, err := result.LastInsertId()
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(likes, dislikes, postID)
-	return err
+	post.ID = int(id)
+	return addPostCategories(db, post.ID, post.Categories)
 }
 
-func GetPostByID(postID int) (*Post, error) {
-	db, err := sql.Open("sqlite3", "./database/forum.db")
-	if err != nil {
-		return nil, err
+func addPostCategories(db *sql.DB, postID int, categories []string) error {
+	for _, category := range categories {
+		var categoryID int
+		err := db.QueryRow("SELECT id FROM categories WHERE name = ?", category).Scan(&categoryID)
+		if err != nil {
+			return err
+		}
+		query := `INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`
+		_, err = db.Exec(query, postID, categoryID)
+		if err != nil {
+			return err
+		}
 	}
-	defer db.Close()
+	return nil
+}
+
+func GetPostByID(db *sql.DB, id int) (*Post, error) {
+	query := `SELECT id, user_id, title, content, created_at, amount_of_comments, score FROM posts WHERE id = ?`
+	row := db.QueryRow(query, id)
 
 	var post Post
-	err = db.QueryRow("SELECT id, user_id, title, content, likes, dislikes, created_at FROM posts WHERE id = ?", postID).Scan(
-		&post.ID, &post.UserID, &post.Title, &post.Content, &post.Likes, &post.Dislikes, &post.CreatedAt)
+	err := row.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.CreatedAt, &post.AmountOfComments, &post.Score)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Printf("No post found with ID %d", id)
+			return nil, err
+		}
+		return nil, err
+	}
+
+	post.Categories, err = getPostCategories(db, post.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -65,14 +71,38 @@ func GetPostByID(postID int) (*Post, error) {
 	return &post, nil
 }
 
-func GetAllPosts() ([]Post, error) {
-	db, err := sql.Open("sqlite3", "./database/forum.db")
+func getPostCategories(db *sql.DB, postID int) ([]string, error) {
+	query := `SELECT c.name FROM categories c INNER JOIN post_categories pc ON c.id = pc.category_id WHERE pc.post_id = ?`
+	rows, err := db.Query(query, postID)
 	if err != nil {
+		log.Printf("Error querying categories for post ID %d: %v", postID, err)
 		return nil, err
 	}
-	defer db.Close()
+	defer rows.Close()
 
-	rows, err := db.Query("SELECT id, user_id, title, content, likes, dislikes, (likes - dislikes) as score, created_at FROM posts")
+	var categories []string
+	for rows.Next() {
+		var category string
+		err := rows.Scan(&category)
+		if err != nil {
+			log.Printf("Error scanning category for post ID %d: %v", postID, err)
+			return nil, err
+		}
+		categories = append(categories, category)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error with rows for post ID %d: %v", postID, err)
+		return nil, err
+	}
+
+	log.Printf("Categories for post ID %d: %v", postID, categories)
+	return categories, nil
+}
+
+func GetAllPosts(db *sql.DB) ([]Post, error) {
+	query := `SELECT id, user_id, title, content, created_at, amount_of_comments, score FROM posts`
+	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +111,11 @@ func GetAllPosts() ([]Post, error) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.Likes, &post.Dislikes, &post.Score, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Content, &post.CreatedAt, &post.AmountOfComments, &post.Score)
+		if err != nil {
+			return nil, err
+		}
+		post.Categories, err = getPostCategories(db, post.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -89,4 +123,10 @@ func GetAllPosts() ([]Post, error) {
 	}
 
 	return posts, nil
+}
+
+func UpdatePostScore(db *sql.DB, postID int, score int) error {
+	query := `UPDATE posts SET score = ? WHERE id = ?`
+	_, err := db.Exec(query, score, postID)
+	return err
 }
